@@ -18,4 +18,11 @@ public static final String CONTENT_TYPE_JSON       = "application/json";
 public static final String COLUMN_REQUEST_METHOD   = "Request_Method";
 public static final String COLUMN_ERROR_NAME       = "Error_Name";
 public static final String COLUMN_RESPONSE_KEY     = "Response_Keys";
+public static final String COLUMN_RUN_MODE         = "Run_Mode";
+public static final String COLUMN_TEST_RESULT      = "Test_Result";
+public static final String TEST_SKIP               = "Skipped";
+public static final String TEST_PASSED             = "Passed";
+public static final String TEST_FAILED             = "Failed";
+public static final String COLUMN_FAILURE_CAUSE    = "Failure_Cause";
+
 }

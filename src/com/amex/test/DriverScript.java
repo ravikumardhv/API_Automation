@@ -1,15 +1,13 @@
-package com.amex.testsamples;
+package com.amex.test;
 
-import java.io.IOException; 
-import java.util.HashMap; 
-import java.util.Map; 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.http.conn.HttpHostConnectException;
-
-import com.amex.base.TestBase; 
-import com.amex.utils.Constants; 
-import com.jayway.restassured.RestAssured; 
-import com.jayway.restassured.path.json.JsonPath; 
+import com.amex.base.TestBase;
+import com.amex.utils.Constants;
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
 public class DriverScript extends TestBase { 
@@ -24,6 +22,8 @@ public class DriverScript extends TestBase {
 	private String requestMethod; 
 	private String responseKeySet; 
 	private String errorName;
+	private int currentTestcase;
+	private boolean testFailed=false;
 
 	public static void main(String[] args) throws IOException {
 		DriverScript driver = new DriverScript();
@@ -32,19 +32,41 @@ public class DriverScript extends TestBase {
 	}
 
 	public void invoke() {
-		for (int i = 2; i <= reader.getRowCount(Constants.SHEET_NAME); i++) {
-			HashMap<String, String> values = reader.getRowData(Constants.SHEET_NAME, i);
-			initialize(values);
-			replaceURLParameters(requestParam);
-			Response response = getResponse();
-			if(response!=null){
-				// To-DO write request and response to a file by creating a folder+timestamp,file+TCID.         
-				validateResponse(response);
-			}
+		clearResults();
+		for (currentTestcase = 2; currentTestcase <= reader.getRowCount(Constants.SHEET_NAME); currentTestcase++) {
+			HashMap<String, String> values = reader.getRowData(Constants.SHEET_NAME, currentTestcase);
+			String runMode = values.get(Constants.COLUMN_RUN_MODE).trim();
 			
+			if(runMode.equalsIgnoreCase("YES")){
+				initialize(values);
+				replaceURLParameters(requestParam);
+				Response response = getResponse();
+				if(response!=null){
+					// To-DO write request and response to a file by creating a folder+timestamp,file+TCID.         
+					validateResponse(response);
+					
+					// Updating the pass result only if there is no failure
+					if(!testFailed){
+						testPassed();
+					}
+				}
+				
+			}else{
+				// Update log file - Test skipped
+				testSkipped();				
+			}			
 		}
-	}
+	}	
+	
 
+
+	private void clearResults() {
+		for (currentTestcase = 2; currentTestcase <= reader.getRowCount(Constants.SHEET_NAME); currentTestcase++) {
+			reader.setCellData(Constants.SHEET_NAME, Constants.COLUMN_FAILURE_CAUSE, currentTestcase, "");
+		}
+		testFailed=false;
+		
+	}
 
 	private void initialize(HashMap<String, String> values) {       
 		requestURL           = Constants.URL+ values.get(Constants.COLUMN_API).trim();          
@@ -58,6 +80,20 @@ public class DriverScript extends TestBase {
 		request              = generateValidRequest(requestName, requestParam);
 		errorName            = values.get(Constants.COLUMN_ERROR_NAME).trim();
 		responseKeySet       = values.get(Constants.COLUMN_RESPONSE_KEY).trim();
+	}
+	
+	private void testSkipped(){
+		reader.setCellData(Constants.SHEET_NAME, Constants.COLUMN_TEST_RESULT, currentTestcase, Constants.TEST_SKIP);
+	}
+	
+	private void testPassed(){
+		reader.setCellData(Constants.SHEET_NAME, Constants.COLUMN_TEST_RESULT, currentTestcase, Constants.TEST_PASSED);
+	}
+	
+	private void testFailed(String failureCause){
+		reader.setCellData(Constants.SHEET_NAME, Constants.COLUMN_TEST_RESULT, currentTestcase, Constants.TEST_FAILED);
+		reader.setCellData(Constants.SHEET_NAME, Constants.COLUMN_FAILURE_CAUSE, currentTestcase, failureCause);
+		testFailed=true;
 	}
 
 	private Response getResponse() {
@@ -74,8 +110,8 @@ public class DriverScript extends TestBase {
 					.andReturn();
 		}
 		}catch(Exception e){
-			System.out.println("Host is not available");
-			//e.printStackTrace();			
+			testFailed("Host is not reachable");
+						
 		}
 		return response;
 
@@ -94,14 +130,16 @@ public class DriverScript extends TestBase {
 			}
 		}else{
 			// TO-DO : Fail the test and do the logging
-			System.out.println("Test Failed did not match. Expected response: "+expResponseCode+" Actual response: "+actualResponseCode);
+			testFailed("Exp response: "
+					+ expResponseCode + " Act response: "
+					+ actualResponseCode);
 		}
 
 	}
 
 	private void validateValidResponse(Response response) {
 		// TODO Auto-generated method stub
-		System.out.println("Valid response");  
+		System.out.println("Valid response");
 
 		// Fetching the JSON response
 		JsonPath json = response.getBody().jsonPath();
@@ -109,11 +147,11 @@ public class DriverScript extends TestBase {
 		// Read the expected response values to be validated
 		String[] responseKeys = responseKeySet.split(",");
 
-		for(int i=0;i<responseKeys.length;i++){
+		for (int i = 0; i < responseKeys.length; i++) {
 			String key = responseKeys[i].trim();
 			String actualValue = json.getString(key);
-			System.out.println(key+"-----"+actualValue);
-		}		
+			System.out.println(key + "-----" + actualValue);
+		}
 		System.out.println(response.asString());
 	}
 

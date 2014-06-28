@@ -1,6 +1,7 @@
 package com.amex.utils;
 
 import java.io.FileInputStream; 
+import java.io.FileOutputStream;
 import java.util.ArrayList; 
 import java.util.Calendar; 
 import java.util.HashMap; 
@@ -13,11 +14,14 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet; 
 import org.apache.poi.ss.usermodel.Workbook; 
 import org.apache.poi.ss.usermodel.WorkbookFactory; 
+
+
 import ch.qos.logback.core.joran.spi.JoranException;
 
 public class ExcelReader {
 
 	private FileInputStream fis = null;
+	public  FileOutputStream fileOut =null;
 	private Workbook workbook = null;
 	private Sheet sheet = null;
 	private Row row = null;
@@ -25,6 +29,7 @@ public class ExcelReader {
 	//public static final Logger logger = LoggerFactory.getLogger(ExcelReader.class);
 	private static volatile ExcelReader instance = null;
 	private static volatile Map<String,ExcelReader> excelReaderMap = new HashMap<String, ExcelReader>();
+	private String path;
 
 	public ExcelReader(String path) {   
 		// LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory(); 
@@ -36,7 +41,8 @@ public class ExcelReader {
 		// configurator.doConfigure(getClass().getResource(Utils.CONFIG_FILENAME));
 		// configurator.doConfigure(System.getProperty("config_path"));
 		//logger.info(" Reading the Excel file"); 
-		fis = new FileInputStream(path); 
+		this.path = path;
+		fis = new FileInputStream(this.path); 
 		this.workbook = WorkbookFactory.create(fis); 
 		fis.close(); 
 		} catch (JoranException je) { 
@@ -347,4 +353,63 @@ public class ExcelReader {
 			}       
 			return list;        
 		}
-	}
+	
+		
+		public boolean setCellData(String sheetName,String colName,int rowNum, String data){
+			try{
+//			fis = new FileInputStream(path); 
+//			workbook = new Workbook(fis);
+			if(rowNum<=0)
+				return false;
+			
+			int index = workbook.getSheetIndex(sheetName);
+			int colNum=-1;
+			if(index==-1)
+				return false;
+			
+			
+			sheet = workbook.getSheetAt(index);
+			
+
+			row=sheet.getRow(0);
+			for(int i=0;i<row.getLastCellNum();i++){
+				//System.out.println(row.getCell(i).getStringCellValue().trim());
+				if(row.getCell(i).getStringCellValue().trim().equals(colName))
+					colNum=i;
+			}
+			if(colNum==-1)
+				return false;
+
+			sheet.autoSizeColumn(colNum); 
+			row = sheet.getRow(rowNum-1);
+			if (row == null)
+				row = sheet.createRow(rowNum-1);
+			
+			cell = row.getCell(colNum);	
+			if (cell == null)
+		        cell = row.createCell(colNum);
+
+		    // cell style
+		    //CellStyle cs = workbook.createCellStyle();
+		    //cs.setWrapText(true);
+		    //cell.setCellStyle(cs);
+		    cell.setCellValue(data);
+
+		    fileOut = new FileOutputStream(path);
+
+			workbook.write(fileOut);
+
+		    fileOut.close();	
+		    
+		    fis = new FileInputStream(path); 
+			this.workbook = WorkbookFactory.create(fis); 
+
+			}
+			catch(Exception e){
+				e.printStackTrace();
+				return false;
+			}
+			return true;
+		}
+
+}
