@@ -61,7 +61,9 @@ public class DriverScript extends TestBase {
 					.body(request).contentType(contentType).post(requestURL)
 					.andReturn();
 		}else if (requestMethod.equalsIgnoreCase("GET")) {
-			// To-Do
+			response = RestAssured.given().headers(headerKey, headerValue)
+					.contentType(contentType).get(requestURL)
+					.andReturn();
 		}
 		return response;
 
@@ -87,9 +89,23 @@ public class DriverScript extends TestBase {
 
 	private void validateValidResponse(Response response) {
 		// TODO Auto-generated method stub
-		System.out.println("Valid response");   
+		System.out.println("Valid response");  
+
+		// Fetching the JSON response
+		JsonPath json = response.getBody().jsonPath();
+
+		// Read the expected response values to be validated
+		String[] responseKeys = responseKeySet.split(",");
+
+		for(int i=0;i<responseKeys.length;i++){
+			String key = responseKeys[i].trim();
+			String actualValue = json.getString(key);
+			System.out.println(key+"-----"+actualValue);
+		}		
 		System.out.println(response.asString());
 	}
+
+
 
 	private void validateErrorResponse(Response response) {     
 		// Fetching the JSON response
@@ -109,6 +125,7 @@ public class DriverScript extends TestBase {
 				System.out.println("Test Failed : Expected : "+expValues[i]+" Actual : "+ActualValue);
 			}
 		}
+		System.out.println(response.asString());
 	}   
 
 	private String getRequestSchema(String requestName) {
