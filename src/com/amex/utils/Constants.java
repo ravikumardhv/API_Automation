@@ -24,5 +24,7 @@ public static final String TEST_SKIP               = "Skipped";
 public static final String TEST_PASSED             = "Passed";
 public static final String TEST_FAILED             = "Failed";
 public static final String COLUMN_FAILURE_CAUSE    = "Failure_Cause";
+public static final String TEST_OUTPUT_PATH	       = "\\Test_Output_files";
+public static final String COLUMN_TCID	           = "TCID";
 
 }
