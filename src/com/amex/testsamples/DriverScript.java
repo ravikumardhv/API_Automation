@@ -3,6 +3,9 @@ package com.amex.testsamples;
 import java.io.IOException; 
 import java.util.HashMap; 
 import java.util.Map; 
+
+import org.apache.http.conn.HttpHostConnectException;
+
 import com.amex.base.TestBase; 
 import com.amex.utils.Constants; 
 import com.jayway.restassured.RestAssured; 
@@ -34,8 +37,11 @@ public class DriverScript extends TestBase {
 			initialize(values);
 			replaceURLParameters(requestParam);
 			Response response = getResponse();
-			// To-DO write request and response to a file by creating a folder+timestamp,file+TCID.         
-			validateResponse(response);
+			if(response!=null){
+				// To-DO write request and response to a file by creating a folder+timestamp,file+TCID.         
+				validateResponse(response);
+			}
+			
 		}
 	}
 
@@ -45,9 +51,7 @@ public class DriverScript extends TestBase {
 		headerKey            = values.get(Constants.COLUMN_HEADER_KEY).trim();
 		headerValue          = values.get(Constants.COLUMN_HEADER_VALUE).trim();
 		requestName          = values.get(Constants.COLUMN_REQUEST_NAME).trim();
-		System.out.println(requestName);
 		requestParam         = values.get(Constants.COLUMN_REQUEST_PARAM).trim();
-		System.out.println(requestParam);
 		expectedResponseCode = values.get(Constants.COLUMN_RESPONSE_CODE).trim();
 		requestMethod        = values.get(Constants.COLUMN_REQUEST_METHOD).trim();          
 		contentType          = Constants.CONTENT_TYPE_JSON;
@@ -59,6 +63,7 @@ public class DriverScript extends TestBase {
 	private Response getResponse() {
 		Response response = null;
 		RestAssured.useRelaxedHTTPSValidation();
+		try{
 		if(requestMethod.equalsIgnoreCase("POST")){
 			response = RestAssured.given().headers(headerKey, headerValue)
 					.body(request).contentType(contentType).post(requestURL)
@@ -67,6 +72,10 @@ public class DriverScript extends TestBase {
 			response = RestAssured.given().headers(headerKey, headerValue)
 					.contentType(contentType).get(requestURL)
 					.andReturn();
+		}
+		}catch(Exception e){
+			System.out.println("Host is not available");
+			//e.printStackTrace();			
 		}
 		return response;
 
