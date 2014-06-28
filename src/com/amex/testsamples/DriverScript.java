@@ -32,6 +32,7 @@ public class DriverScript extends TestBase {
 		for (int i = 2; i <= reader.getRowCount(Constants.SHEET_NAME); i++) {
 			HashMap<String, String> values = reader.getRowData(Constants.SHEET_NAME, i);
 			initialize(values);
+			replaceURLParameters(requestParam);
 			Response response = getResponse();
 			// To-DO write request and response to a file by creating a folder+timestamp,file+TCID.         
 			validateResponse(response);
@@ -44,7 +45,9 @@ public class DriverScript extends TestBase {
 		headerKey            = values.get(Constants.COLUMN_HEADER_KEY).trim();
 		headerValue          = values.get(Constants.COLUMN_HEADER_VALUE).trim();
 		requestName          = values.get(Constants.COLUMN_REQUEST_NAME).trim();
+		System.out.println(requestName);
 		requestParam         = values.get(Constants.COLUMN_REQUEST_PARAM).trim();
+		System.out.println(requestParam);
 		expectedResponseCode = values.get(Constants.COLUMN_RESPONSE_CODE).trim();
 		requestMethod        = values.get(Constants.COLUMN_REQUEST_METHOD).trim();          
 		contentType          = Constants.CONTENT_TYPE_JSON;
@@ -132,12 +135,23 @@ public class DriverScript extends TestBase {
 		return requestProp.getProperty(requestName);
 	}
 
-	private String generateValidRequest(String requestName, String params) {
-		String request = getRequestSchema(requestName);
-		HashMap<String, String> paramsMap = generateRequestParamsMap(params);
-		String finalRequest = formatRequestWithValues(request, paramsMap);
-		return finalRequest;
+	private String generateValidRequest(String requestName, String requestParam) {
 
+		if(requestMethod.equalsIgnoreCase("POST")){
+			String request = getRequestSchema(requestName);
+			HashMap<String, String> paramsMap = generateRequestParamsMap(requestParam);
+			String finalRequest = replaceRequestParameters(request, paramsMap);
+			return finalRequest;
+		}
+		return null;
+	}
+
+	private void replaceURLParameters(String requestParam){
+		if (requestMethod.equalsIgnoreCase("GET")){
+			HashMap<String, String> paramsMap = generateRequestParamsMap(requestParam);	
+			requestURL =replaceRequestParameters(requestURL, paramsMap);
+		}
+		
 	}
 
 	private HashMap<String, String> generateRequestParamsMap(String params) {
@@ -153,7 +167,7 @@ public class DriverScript extends TestBase {
 		return paramsMap;
 	}
 
-	private String formatRequestWithValues(String request, HashMap<String, String> params) {
+	private String replaceRequestParameters(String request, HashMap<String, String> params) {
 		System.out.println(request);
 		for (Map.Entry<String, String> entry : params.entrySet()) {
 			request = request.replace(entry.getKey(), entry.getValue());
