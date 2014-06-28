@@ -1,0 +1,1 @@
+{"errors":[{"errorCd":1005,"errorNm":"InvalidSeNumber","errorDesc":"INVALID SE NUMBER","fieldNm":"seNbrList","message":"the numbr could not be found"}]}
