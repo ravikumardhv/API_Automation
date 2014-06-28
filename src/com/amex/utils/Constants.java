@@ -15,7 +15,7 @@ public static final String COLUMN_REQUEST_NAME     = "Request_Name";
 public static final String COLUMN_REQUEST_PARAM    = "Request_Parameters";
 public static final String COLUMN_RESPONSE_CODE    = "Expected_Response_Code";
 public static final String CONTENT_TYPE_JSON       = "application/json";
-public static final Object COLUMN_REQUEST_METHOD   = "Request_Method";
-public static final Object COLUMN_ERROR_NAME       = "Error_Name";
-public static final Object COLUMN_RESPONSE_KEY     = "Response_Keys";
+public static final String COLUMN_REQUEST_METHOD   = "Request_Method";
+public static final String COLUMN_ERROR_NAME       = "Error_Name";
+public static final String COLUMN_RESPONSE_KEY     = "Response_Keys";
 }
