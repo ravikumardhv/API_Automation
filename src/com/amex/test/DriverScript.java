@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amex.base.TestBase;
 import com.amex.utils.Constants;
 import com.amex.utils.FileUtil;
@@ -26,8 +29,11 @@ public class DriverScript extends TestBase {
     private int currentTestcase;
     private boolean testFailed=false;
     private String	tcid;
+    
+    private static Logger logger = LoggerFactory.getLogger(DriverScript.class);
 
     public static void main(String[] args)  {
+	logger.info("Started executing test cases");
 	DriverScript driver = new DriverScript();
 	try {
 	    driver.load();
