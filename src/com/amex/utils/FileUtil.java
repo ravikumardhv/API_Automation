@@ -11,7 +11,7 @@ public class FileUtil
 	{
 		try{
 			
-		//if directory created
+		//if directory is created
 		if (createDirectory(filepath))
 		{
 			File file = new File(filepath + fileName);
