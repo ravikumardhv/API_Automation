@@ -1,0 +1,1 @@
+{"chargeback":5,"activeDisputes":12,"recentUpdates":10,"recentlyClosed":12,"responseRequired":8,"inProgress":4,"closedInFavor":4,"closedChargebacks":8}
