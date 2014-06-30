@@ -25,5 +25,8 @@
 	<classpathentry kind="lib" path="lib/logback-classic-1.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-1.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="lib/db2jcc_license_cu.jar"/>
+	<classpathentry kind="lib" path="lib/db2jcc.jar"/>
+	<classpathentry kind="lib" path="lib/db2jcc_license_cisuz.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

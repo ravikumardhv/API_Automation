@@ -1,13 +1,19 @@
 package com.amex.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 public class FileReader {
-
-public static ExcelReader getExcelReader(String excelFilePath) {
-
-    if (excelFilePath == null) {
-        return null;
-    } else {
-        return ExcelReader.getInstance(excelFilePath);
-    }
-}
+	private static Logger logger = LoggerFactory.getLogger(FileReader.class);
+	
+	public static ExcelReader getExcelReader(String excelFilePath) {
+		
+		if (excelFilePath == null) {
+			return null;
+		} else {
+			logger.info("Loading the Excel file : "+excelFilePath);
+			return ExcelReader.getInstance(excelFilePath);
+		}
+	}
 }
